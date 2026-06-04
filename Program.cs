@@ -18,6 +18,10 @@ var app = builder.Build();
 // =========================================================================
 // 2. MIDDLEWARE PIPELINE CONFIGURATION (Ordering Matters Explicitly!)
 // =========================================================================
+app.UseMiddleware<RequestLoggingMiddleware>();
+
+// Standard framework behaviors follow
+app.UseExceptionHandler("/error"); // For Session 3 ProblemDetails integration
 app.UseHttpsRedirection();
 
 app.UseRouting();
