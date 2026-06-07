@@ -13,6 +13,19 @@ builder.Services.AddAuthentication("Training")
     .AddScheme<AuthenticationSchemeOptions, TrainingAuthHandler>("Training", null);
 builder.Services.AddAuthorization();
 
+
+// Register clashing service lifetimes to trigger container analysis
+builder.Services.AddSingleton<EnrollmentWorker>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+
+// Turn on explicit framework validation constraints
+builder.Host.UseDefaultServiceProvider(options =>
+{
+    options.ValidateScopes = true; // Blocks captive service injections
+    options.ValidateOnBuild = true; // Scans dependencies completely during build execution
+});
+
+
 var app = builder.Build();
 
 // =========================================================================
