@@ -13,6 +13,11 @@ builder.Services.AddAuthentication("Training")
     .AddScheme<AuthenticationSchemeOptions, TrainingAuthHandler>("Training", null);
 builder.Services.AddAuthorization();
 
+// Bind, validate, and enforce instant validation for our payment options section
+builder.Services.AddOptions<PaymentOptions>()
+    .Bind(builder.Configuration.GetSection(PaymentOptions.SectionName))
+    .ValidateDataAnnotations() // Runs our validation checks
+    .ValidateOnStart(); // Forces validation to execute during server startup
 
 // Register clashing service lifetimes to trigger container analysis
 builder.Services.AddSingleton<EnrollmentWorker>();
