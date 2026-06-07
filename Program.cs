@@ -63,4 +63,24 @@ app.MapGet("/api/assessments/results", () => Results.Ok(new
 }))
 .RequireAuthorization(); // Instantly turns away anonymous calls with a 401 response
 
+app.MapGet("/api/test-enroll", async (IEnrollmentService enrollmentService) =>
+{
+    string testStudent = "STU-777";
+    string testCourse = "CRS-EXT10";
+
+    // First attempt: Creates the new record smoothly
+    var firstAttempt = await enrollmentService.EnrollAsync(testStudent, testCourse);
+
+    // Second attempt: Triggers our defensive duplicate check and logs the warning
+    var secondAttempt = await enrollmentService.EnrollAsync(testStudent, testCourse);
+
+    return Results.Ok(new
+    {
+        Message = "Check your application console logs to see the structured output properties!",
+        FirstRecordId = firstAttempt.Id,
+        SecondRecordId = secondAttempt.Id,
+        IsSameInstance = object.ReferenceEquals(firstAttempt, secondAttempt)
+    });
+});
+
 app.Run();
