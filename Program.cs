@@ -1,12 +1,13 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.OpenApi;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // =========================================================================
 // 1. SERVICE REGISTRATION (Dependency Injection)
 // =========================================================================
-builder.Services.AddControllers();
 
 // Register the strict security services required by the runtime pipeline
 builder.Services.AddAuthentication("Training")
@@ -30,8 +31,13 @@ builder.Host.UseDefaultServiceProvider(options =>
     options.ValidateOnBuild = true; // Scans dependencies completely during build execution
 });
 
+builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddControllers();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
+
 
 // =========================================================================
 // 2. MIDDLEWARE PIPELINE CONFIGURATION (Ordering Matters Explicitly!)
@@ -42,12 +48,27 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseExceptionHandler("/error"); // For Session 3 ProblemDetails integration
 app.UseHttpsRedirection();
 
+app.UseExceptionHandler();
+app.UseStatusCodePages();
+
 app.UseRouting();
 
 // Security MUST intercept requests right after routing matches them, 
 // and ALWAYS before endpoints run!
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+if (app.Environment.IsDevelopment())
+{
+    app.MapOpenApi();
+    app.MapScalarApiReference(); // Accessible at /scalar/v1
+}
+else 
+{
+    // Production only: ensure exceptions are caught and formatted without leaks
+    app.UseExceptionHandler();
+}
 
 // =========================================================================
 // 3. ENDPOINT DEFINITIONS
@@ -81,6 +102,11 @@ app.MapGet("/api/test-enroll", async (IEnrollmentService enrollmentService) =>
         SecondRecordId = secondAttempt.Id,
         IsSameInstance = object.ReferenceEquals(firstAttempt, secondAttempt)
     });
+});
+
+app.MapGet("/api/error", () => 
+{
+    throw new TmsDatabaseException("Simulated database failure for ProblemDetails testing");
 });
 
 app.Run();

@@ -79,3 +79,6 @@ public record EnrollmentRecord(
     string StudentId,
     string CourseCode,
     DateTime EnrolledAt);
+
+// Exception Class
+public class TmsDatabaseException(string message) : Exception(message);
