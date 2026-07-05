@@ -5,6 +5,8 @@ using Scalar.AspNetCore;
 using Microsoft.EntityFrameworkCore;
 using TmsApi.Data;
 using TmsApi.Entities;
+using TmsApi.Services;
+using TmsApi.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,7 +27,7 @@ builder.Services.AddOptions<PaymentOptions>()
 
 // Register clashing service lifetimes to trigger container analysis
 builder.Services.AddSingleton<EnrollmentWorker>();
-builder.Services.AddSingleton<IEnrollmentService, EnrollmentService>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
 
 // Turn on explicit framework validation constraints
 builder.Host.UseDefaultServiceProvider(options =>
@@ -44,6 +46,14 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddProblemDetails();
+
+
+builder.Services.AddScoped<ICourseService, CourseService>();
+builder.Services.AddScoped<IEnrollmentService, EnrollmentService>();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<AuditLogFilter>(); // Using the generic method allows DI to resolve the logger automatically
+});
 
 var app = builder.Build();
 
@@ -137,9 +147,9 @@ new() { RegistrationNumber = "TMS-2026-0005", Name = "EvanWright", GPA = 2.5m, I
         context.Students.AddRange(students);
         var courses = new List<Course>
 {
-new() { Code = "CS-101", Title = "Introduction to ComputerScience", Capacity = 30 },
-new() { Code = "CS-201", Title = "Data Structures and Algorithms", Capacity = 25 },
-new() { Code = "MAT-101", Title = "Calculus I", Capacity = 40 }
+new() { Code = "CS-101", Title = "Introduction to ComputerScience", MaxCapacity = 30 },
+new() { Code = "CS-201", Title = "Data Structures and Algorithms", MaxCapacity = 25 },
+new() { Code = "MAT-101", Title = "Calculus I", MaxCapacity = 40 }
 };
         context.Courses.AddRange(courses);
         context.SaveChanges();
@@ -153,6 +163,16 @@ new() { StudentId = students[3].Id, CourseId = courses[1].Id, Grade = 3.9m }
         context.Enrollments.AddRange(enrollments);
         context.SaveChanges();
     }
+}
+
+
+if (app.Environment.IsDevelopment())
+{
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<TmsDbContext>();
+    
+    // Call our static seed method using the correct persistence namespace
+    await TmsApi.Persistence.DataSeeder.SeedAsync(context);
 }
 
 app.Run();
