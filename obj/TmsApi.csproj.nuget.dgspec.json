@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\CSUG\\Documents\\estifc137\\tms-api\\TmsApi.csproj": {}
+    "C:\\Users\\Estifanose\\Desktop\\Qiyas\\TmsApi\\TmsApi.csproj": {}
   },
   "projects": {
-    "C:\\Users\\CSUG\\Documents\\estifc137\\tms-api\\TmsApi.csproj": {
+    "C:\\Users\\Estifanose\\Desktop\\Qiyas\\TmsApi\\TmsApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\CSUG\\Documents\\estifc137\\tms-api\\TmsApi.csproj",
+        "projectUniqueName": "C:\\Users\\Estifanose\\Desktop\\Qiyas\\TmsApi\\TmsApi.csproj",
         "projectName": "TmsApi",
-        "projectPath": "C:\\Users\\CSUG\\Documents\\estifc137\\tms-api\\TmsApi.csproj",
-        "packagesPath": "C:\\Users\\CSUG\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\CSUG\\Documents\\estifc137\\tms-api\\obj\\",
+        "projectPath": "C:\\Users\\Estifanose\\Desktop\\Qiyas\\TmsApi\\TmsApi.csproj",
+        "packagesPath": "C:\\Users\\Estifanose\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Estifanose\\Desktop\\Qiyas\\TmsApi\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\CSUG\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Estifanose\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -49,6 +49,22 @@
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[10.0.9, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.9, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[10.0.9, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[10.0.2, )"
             },
             "Scalar.AspNetCore": {
               "target": "Package",
