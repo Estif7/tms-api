@@ -1,33 +1,83 @@
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using TmsApi.Services;
 using TmsApi.Entities;
 using TmsApi.Dtos;
 
 namespace TmsApi.Controllers;
 
-[ApiController] // Triggers model validation rules automatically
+[ApiController]
 [Route("api/courses")]
-public class CoursesController(ICourseService courseService) : ControllerBase
+[Tags("Courses")]
+[Produces("application/json")]
+[ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+public class CoursesController(
+    ICourseService courseService,
+    LinkGenerator linkGenerator) : ControllerBase
 {
-    [HttpGet] // Bare [HttpGet] handles the root 'api/courses' path
+    [HttpGet]
+    [ProducesResponseType(typeof(PagedResponse<CourseResponseDto>), StatusCodes.Status200OK)]
+    [EndpointSummary("List courses with pagination")]
+    [EndpointDescription("Returns a paginated, optionally filtered list of TMS courses. PageSize is capped at 50.")]
     public async Task<IActionResult> GetCourses([FromQuery] PagedRequest request, CancellationToken ct)
     {
-        // Passes the query parameters down to build the optimized SQL statement
         var result = await courseService.GetCoursesAsync(request, ct);
         return Ok(result);
     }
     
     [HttpGet("{id:int}", Name = nameof(GetCourseById))]
+    [ProducesResponseType(typeof(CourseDetailDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+    [EndpointSummary("Get a course by ID")]
+    [EndpointDescription("Returns course details with HATEOAS links. Returns 404 if the course does not exist.")]
     public async Task<IActionResult> GetCourseById(int id, CancellationToken ct)
     {
         var course = await courseService.GetByIdAsync(id, ct);
-        return course is not null ? Ok(course) : NotFound();
+        if (course is null) return NotFound();
+
+        // Generate routes cleanly using native routing keys
+        var selfPath = linkGenerator.GetPathByName(HttpContext, nameof(GetCourseById), new { id });
+        var enrollmentsPath = linkGenerator.GetPathByName(HttpContext, "ListCourseEnrollments", new { courseId = id });
+
+        var links = new List<LinkDto>
+        {
+            new(selfPath!, "self", "GET"),
+            new(selfPath!, "update", "PUT"),
+            new(selfPath!, "delete", "DELETE"),
+            new(enrollmentsPath!, "enrollments", "GET")
+        };
+
+        // Business rule evaluation for hypermedia links
+        if (course.EnrollmentCount < course.MaxCapacity)
+        {
+            links.Add(new LinkDto(enrollmentsPath!, "enroll", "POST"));
+        }
+
+        var detailDto = new CourseDetailDto
+        {
+            Id = course.Id,
+            Code = course.Code,
+            Title = course.Title,
+            MaxCapacity = course.MaxCapacity,
+            EnrollmentCount = course.EnrollmentCount,
+            Links = links
+        };
+
+        return Ok(detailDto);
     }
 
     [HttpPost]
+    [ProducesResponseType(typeof(CourseResponseDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ValidationProblemDetails), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status409Conflict)]
+    [EndpointSummary("Create a new course")]
+    [EndpointDescription("Creates a course with a unique code. Returns 409 if the course code already exists.")]
     public async Task<IActionResult> CreateCourse(CreateCourseRequest request, CancellationToken ct)
     {
-        // Step 1: Pre-check if the course code is already taken
         if (await courseService.CodeExistsAsync(request.Code, ct))
         {
             return Conflict(new ProblemDetails
@@ -35,10 +85,9 @@ public class CoursesController(ICourseService courseService) : ControllerBase
                 Title = "Course code already exists",
                 Detail = $"A course with code '{request.Code}' is already registered.",
                 Status = StatusCodes.Status409Conflict
-            }); // 
+            });
         }
 
-        // Step 2: Happy path creation if unique
         var result = await courseService.CreateAsync(request, ct);
         return CreatedAtAction(nameof(GetCourseById), new { id = result.Id }, result);
     }

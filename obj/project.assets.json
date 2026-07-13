@@ -2283,19 +2283,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Estifanose\\.nuget\\packages\\": {}
+    "C:\\Users\\CSUG\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\Estifanose\\Desktop\\Qiyas\\TmsApi\\TmsApi.csproj",
+      "projectUniqueName": "C:\\Users\\CSUG\\Documents\\estifc137\\tms-api\\TmsApi.csproj",
       "projectName": "TmsApi",
-      "projectPath": "C:\\Users\\Estifanose\\Desktop\\Qiyas\\TmsApi\\TmsApi.csproj",
-      "packagesPath": "C:\\Users\\Estifanose\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\Estifanose\\Desktop\\Qiyas\\TmsApi\\obj\\",
+      "projectPath": "C:\\Users\\CSUG\\Documents\\estifc137\\tms-api\\TmsApi.csproj",
+      "packagesPath": "C:\\Users\\CSUG\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\CSUG\\Documents\\estifc137\\tms-api\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Estifanose\\AppData\\Roaming\\NuGet\\NuGet.Config"
+        "C:\\Users\\CSUG\\AppData\\Roaming\\NuGet\\NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net10.0"

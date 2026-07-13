@@ -32,7 +32,7 @@ public static class DataSeeder
         ("AI-101",  "Applied Machine Learning", 20),
         ("AI-201",  "Generative AI for Developers", 18),
         ("UX-101",  "UX Research and Wireframing", 24),
-        ("UX-201",  "Design Systems and Tokens", 22)
+        ("UX-201",  "Design Systems and Tokens", 1)
     ];
 
     public static async Task SeedAsync(TmsDbContext context, CancellationToken ct = default)
